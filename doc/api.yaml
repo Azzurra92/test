@@ -1,0 +1,497 @@
+openapi: 3.0.3
+info:
+  title: Swagger WasaPhoto - OpenApi 3.0
+  description: |-
+    This OpenAPI document describes the wasa photo API.
+    Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photo directly from your PC, and they will be visible to everyone following you.
+    Some useful links:
+    - [The Wasa Photo repository](https://github.com/Azzurra92/wasaphoto)
+    - [The source API definition for the Wasa Photo](https://github.com/Azzurra92/wasaphoto/tree/main/doc/openapi.yaml)
+  version: "1.0.1"
+servers:
+  - url: http://localhost:3000/api/v3
+tags:
+  - name: login
+    description: Semplified Login
+  - name: user
+    description: Operations about user
+  - name: photo
+    description: Operations about photo
+paths:
+  /session:
+    post:
+      tags:
+        - login
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Create User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identifier'
+        '400': {$ref: '#/components/responses/BadRequest'}
+
+  /user/{userId}/username:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Modify my username
+      description: This can only be done by the logged in user
+      operationId: setMyUserName
+      parameters:
+        - $ref: '#/components/parameters/UserParam'
+      requestBody:
+        description: Modify user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+
+
+  /user/{userId}/following/{followingId}:
+    parameters:
+      - $ref: '#/components/parameters/UserParam'
+      - $ref: '#/components/parameters/FollowParam'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Follow a user
+      description: This can only be done by the logged in user.
+      operationId: followUser
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Unfollow a user
+      description: This can only be done by the logged in user.
+      operationId: unfollowUser
+      responses:
+        '200': {$ref: '#/components/responses/Successful'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /user/{userId}/ban/{userBanId}:
+    parameters:
+      - $ref: '#/components/parameters/UserParam'
+      - $ref: '#/components/parameters/BanParam'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Ban a user
+      description: This can only be done by the logged in user.
+      operationId: banUser
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Unban a user
+      description: This can only be done by the logged in user.
+      operationId: unbanUser
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /users/{userId}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Get  user profile by userId
+      description: This can only be done by the logged in user.
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/UserParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /streams:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Get stream of photos
+      description: This can only be done by the logged in user
+      operationId: getMyStream
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 1
+                maxItems: 50
+                description: Return array stream of photo
+                items:
+                   $ref: '#/components/schemas/Stream'
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+  /photo:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Upload photos
+      description: This can only be done by the logged in user
+      operationId: uploadPhoto
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              minLength: 100
+              maxLength: 3000000
+              description: media type for upload file
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+
+  /photo/{photoId}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Delete a photo
+      description: This can only be done by the logged in user.
+      operationId: deletePhoto
+      parameters:
+        - $ref: '#/components/parameters/PhotoParam'
+      responses:
+        '200': {$ref: '#/components/responses/Successful'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+
+  /photo/{photoId}/like/{userId}:
+    parameters:
+       - $ref: '#/components/parameters/PhotoParam'
+       - $ref: '#/components/parameters/UserParam'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Add like to a photo
+      description: This can only be done by the logged in user.
+      operationId: likePhoto
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Remove like from a photo
+      description: This can only be done by the logged in user.
+      operationId: unlikePhoto
+      responses:
+        '200': {$ref: '#/components/responses/Successful'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+
+  /photos/{photoId}/comments:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Create comment to a photo
+      description: This can only be done by the logged in user
+      operationId: commentPhoto
+      parameters:
+        - $ref: '#/components/parameters/PhotoParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+
+
+  /photos/{photoId}/comments/{commentId}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - photo
+      summary: Delete photo comment
+      description: This can only be done by the logged in user.
+      operationId: uncommentPhoto
+      parameters:
+        - $ref: '#/components/parameters/CommentParam'
+        - $ref: '#/components/parameters/PhotoParam'
+      responses:
+        '200': {$ref: '#/components/responses/Successful'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+
+
+components:
+  parameters:
+    UserParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Identifier user
+    FollowParam:
+      name: followingId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Following user
+    PhotoParam:
+      name: photoId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Identifier photo
+    BanParam:
+      name: userBanId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Identifier photo
+    CommentParam:
+      name: commentId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Identifier comment
+  schemas:
+    User:
+      required:
+      - username
+      type: object
+      description: Represents the User object
+      properties:
+        username:
+          type: string
+          pattern: '[a-zA-Z0-9]'
+          minLength: 3
+          maxLength: 16
+          example: "theUser92"
+          description: user username
+    Identifier:	
+      type: object	
+      description: User id of the user	
+      properties:
+        identifier:
+          type: string
+          pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+          example: "123e4567-e89b-12d3-a456-426655440000"
+          description: Identifier user
+    Profile:
+      type: object
+      description: Represents the profile object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        photos:
+          type: array
+          description: User photo list
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/Photo'
+        post:
+          type: integer
+          description: Number of photos posted
+        follower:
+          type: integer
+          description: Amount of follower
+        following:
+          type: integer
+          description: Amount of following
+    Photo:
+      type: object
+      description: Represents the photo object
+      properties:
+        id:
+          type: integer
+          example: 987654321
+          description: Identifier photo
+        datetime:
+          format: date-time
+          type: string
+          example: "1985-04-12T23:20:50.52Z"
+          description: Information about photo upload
+        likes:
+          type: integer
+          example: 0
+          description: likes contains the number of received likes
+        comments:
+          type: array
+          items: 
+            $ref: '#/components/schemas/CommentResponse'
+          minItems: 1
+          maxItems: 50
+          description: comments received
+        photoUrl:
+          type: string
+          example: "/images/nomeImage.png"
+          description: relative path of the photo
+    CommentRequest:
+      type: object
+      description: Represent the body of comment
+      properties:
+        text:
+          type: string
+          pattern: "^.*?$"
+          description: text of the comment
+          example: "Scrivi un commento!"
+          minLength: 1
+          maxLength: 1000
+    CommentResponse:
+      type: object
+      description: Represents the comment object
+      properties:
+        id:
+          type: integer
+          example: 123456789
+          description: Identifier comment
+        from:
+          $ref: '#/components/schemas/User'
+        comment:
+          type: string
+          pattern: "^.*?$"
+          minLength: 1
+          maxLength: 1000
+          example: "this is a beautiful photo"
+          description: text of the message
+        datetime:
+          format: date-time
+          type: string
+          example: "1985-04-12T23:20:50.52Z"
+          description: Information about comment upload
+    Stream:
+      type: object
+      description: Represents the stream of photo object
+      properties:
+        photos:
+          type: array
+          description: list of the photo
+          items:
+            $ref: '#/components/schemas/Photo'
+          minItems: 1
+          maxItems: 50
+    ApiResponse:
+      type: object
+      description: Information about the responses of the api
+      properties:
+        code:
+          type: integer
+          example: 401
+          description: Code of the error
+        message:
+          type: string
+          description: Message of the error
+
+  responses:
+    Unauthorized:
+      description: The user is not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    BadRequest:
+      description: The request was not compliant with the documentation (eg. missing fields, etc)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    NoContent:
+      description: Success
+    NotFound:
+      description: The resource is not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    Successful:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
