@@ -90,7 +90,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, fmt.Errorf("error creating database structure: %w", err1)
 		}
 	}
-
 	return &appdbimpl{
 		c: db,
 	}, nil
