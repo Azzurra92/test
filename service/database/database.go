@@ -37,6 +37,7 @@ import (
 )
 
 var ErrUserExists = errors.New("user exists")
+var ErrUserNotExists = errors.New("user not exists")
 
 type User struct {
 	ID       uint64
@@ -45,9 +46,12 @@ type User struct {
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	// CreateStudent creates a new user if he/she doesn't exist
+	// CreateUser creates a new user if he/she doesn't exist
 	CreateUser(User) (User, error)
+	// UpdateUser updates the user, replacing every value with those provided in the argument
+	UpdateUser(User) (User, error)
 
+	BanUser(uint64, uint64) error
 	Ping() error
 }
 
@@ -66,12 +70,24 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		sqlStmt := `CREATE TABLE users (
-    id INTEGER NOT NULL AUTO_INCREMENT,
-    username TEXT NOT NULL,
-	PRIMARY KEY(id));`
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+	}
+	err1 := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='bans';`).Scan(&tableName)
+	if errors.Is(err1, sql.ErrNoRows) {
+		sqlStmt := `CREATE TABLE bans (
+			userId INTEGER NOT NULL,
+			bannedUser INTEGER NOT NULL,
+			PRIMARY KEY(userId, bannedUser),
+			FOREIGN KEY(userId) REFERENCES users(id),
+			FOREIGN KEY(bannedUser) REFERENCES users(id));`
+		_, err1 = db.Exec(sqlStmt)
+		if err1 != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err1)
 		}
 	}
 

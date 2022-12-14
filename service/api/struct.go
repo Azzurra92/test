@@ -6,12 +6,10 @@ import (
 	"time"
 )
 
-var (
-	usernameRx = regexp.MustCompile(`[a-zA-Z0-9]`)
-)
+var usernameRx = regexp.MustCompile(`^[A-Za-z0-9_-]*$`)
 
-func (u *User) Valid() bool {
-	return usernameRx.MatchString(u.Username)
+func (u *User) IsValid() bool {
+	return len(u.Username) >= 3 && len(u.Username) <= 16 && usernameRx.MatchString(u.Username)
 }
 
 type User struct {
@@ -28,7 +26,6 @@ func (u *User) ToDatabase() database.User {
 
 func (u *User) FromDatabase(user database.User) {
 	u.ID = user.ID
-	u.Username = u.Username
 }
 
 type Profile struct {

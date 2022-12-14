@@ -9,7 +9,7 @@ info:
     - [The source API definition for the Wasa Photo](https://github.com/Azzurra92/wasaphoto/tree/main/doc/openapi.yaml)
   version: "1.0.1"
 servers:
-  - url: http://localhost:3000/api/v3
+  - url: http://localhost:3000
 tags:
   - name: login
     description: Semplified Login
@@ -42,6 +42,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Identifier'
         '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflit'}
 
   /user/{userId}/username:
     put:
@@ -340,22 +341,17 @@ components:
       type: object
       description: Represents the User object
       properties:
+        id:
+          type: integer
+          description: Identifier user
+          example: 1234
         username:
           type: string
-          pattern: '[a-zA-Z0-9]'
+          pattern: '^[A-Za-z0-9_-]*$'
           minLength: 3
           maxLength: 16
           example: "theUser92"
           description: user username
-    Identifier:	
-      type: object	
-      description: User id of the user	
-      properties:
-        identifier:
-          type: string
-          pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
-          example: "123e4567-e89b-12d3-a456-426655440000"
-          description: Identifier user
     Profile:
       type: object
       description: Represents the profile object
@@ -489,6 +485,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiResponse'
+    Conflit:
+      description: Conflit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+        
 
   securitySchemes:
     bearerAuth:
