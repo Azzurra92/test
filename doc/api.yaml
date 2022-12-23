@@ -40,11 +40,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Identifier'
+                $ref: '#/components/schemas/User'
         '400': {$ref: '#/components/responses/BadRequest'}
         '409': {$ref: '#/components/responses/Conflit'}
 
-  /user/{userId}/username:
+  /users/{userId}/username:
     put:
       security:
         - bearerAuth: []
@@ -73,7 +73,7 @@ paths:
 
 
 
-  /user/{userId}/following/{followingId}:
+  /users/{userId}/following/{followingId}:
     parameters:
       - $ref: '#/components/parameters/UserParam'
       - $ref: '#/components/parameters/FollowParam'
@@ -103,7 +103,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
 
-  /user/{userId}/ban/{userBanId}:
+  /users/{userId}/bans/{userBanId}:
     parameters:
       - $ref: '#/components/parameters/UserParam'
       - $ref: '#/components/parameters/BanParam'
@@ -154,7 +154,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
 
-  /streams:
+  /users/{userId}/streams:
     get:
       security:
         - bearerAuth: []
@@ -163,6 +163,8 @@ paths:
       summary: Get stream of photos
       description: This can only be done by the logged in user
       operationId: getMyStream
+      parameters:
+         - $ref: '#/components/parameters/UserParam'
       responses:
         '200':
           description: successful operation
@@ -177,7 +179,7 @@ paths:
                    $ref: '#/components/schemas/Stream'
         '401': {$ref: '#/components/responses/Unauthorized'}
 
-  /photo:
+  /users/{userId}/photos:
     post:
       security:
         - bearerAuth: []
@@ -186,6 +188,8 @@ paths:
       summary: Upload photos
       description: This can only be done by the logged in user
       operationId: uploadPhoto
+      parameters:
+         - $ref: '#/components/parameters/UserParam'
       requestBody:
         content:
           application/octet-stream:
@@ -206,7 +210,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /photo/{photoId}:
+  /users/{userId}/photos/{photoId}:
     delete:
       security:
         - bearerAuth: []
@@ -216,13 +220,14 @@ paths:
       description: This can only be done by the logged in user.
       operationId: deletePhoto
       parameters:
+        - $ref: '#/components/parameters/UserParam'
         - $ref: '#/components/parameters/PhotoParam'
       responses:
         '200': {$ref: '#/components/responses/Successful'}
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /photo/{photoId}/like/{userId}:
+  /users/{userId}/photos/{photoId}/likes:
     parameters:
        - $ref: '#/components/parameters/PhotoParam'
        - $ref: '#/components/parameters/UserParam'
@@ -252,7 +257,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /photos/{photoId}/comments:
+  /users/{userId}/photos/{photoId}/comments:
     post:
       security:
         - bearerAuth: []
@@ -262,6 +267,7 @@ paths:
       description: This can only be done by the logged in user
       operationId: commentPhoto
       parameters:
+        - $ref: '#/components/parameters/UserParam'
         - $ref: '#/components/parameters/PhotoParam'
       requestBody:
         content:
@@ -279,7 +285,7 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
 
 
-  /photos/{photoId}/comments/{commentId}:
+  /users/{userId}/photos/{photoId}/comments/{commentId}:
     delete:
       security:
         - bearerAuth: []
@@ -289,6 +295,7 @@ paths:
       description: This can only be done by the logged in user.
       operationId: uncommentPhoto
       parameters:
+        - $ref: '#/components/parameters/UserParam'
         - $ref: '#/components/parameters/CommentParam'
         - $ref: '#/components/parameters/PhotoParam'
       responses:
@@ -391,13 +398,8 @@ components:
           type: integer
           example: 0
           description: likes contains the number of received likes
-        comments:
-          type: array
-          items: 
-            $ref: '#/components/schemas/CommentResponse'
-          minItems: 1
-          maxItems: 50
-          description: comments received
+        userId:
+          $ref: '#/components/schemas/User'
         photoUrl:
           type: string
           example: "/images/nomeImage.png"
@@ -497,4 +499,3 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-
