@@ -53,6 +53,9 @@ type Config struct {
 
 	// Database is the instance of database.AppDatabase where data are saved
 	Database database.AppDatabase
+
+	// ImagesFolder is the folder where the images are stored
+	ImagesFolder string
 }
 
 // Router is the package API interface representing an API handler builder
@@ -74,6 +77,10 @@ func New(cfg Config) (Router, error) {
 		return nil, errors.New("database is required")
 	}
 
+	if cfg.ImagesFolder == "" {
+		cfg.ImagesFolder = "/tmp"
+	}
+
 	// Create a new router where we will register HTTP endpoints. The server will pass requests to this router to be
 	// handled.
 	router := httprouter.New()
@@ -81,9 +88,10 @@ func New(cfg Config) (Router, error) {
 	router.RedirectFixedPath = false
 
 	return &_router{
-		router:     router,
-		baseLogger: cfg.Logger,
-		db:         cfg.Database,
+		router:       router,
+		baseLogger:   cfg.Logger,
+		db:           cfg.Database,
+		imagesFolder: cfg.ImagesFolder,
 	}, nil
 }
 
@@ -95,4 +103,6 @@ type _router struct {
 	baseLogger logrus.FieldLogger
 
 	db database.AppDatabase
+
+	imagesFolder string
 }

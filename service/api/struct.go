@@ -28,6 +28,36 @@ func (u *User) FromDatabase(user database.User) {
 	u.ID = user.ID
 }
 
+func (p *Photo) ToDatabase() database.Photo {
+
+	return database.Photo{
+		Id:       p.Id,
+		UUID:     p.UUID,
+		Datetime: p.Datetime,
+		Likes:    p.Likes,
+		PhotoUrl: p.PhotoUrl,
+		UserId:   p.UserId,
+	}
+}
+
+func (p *Photo) FromDatabase(d database.Photo) {
+
+	p.Id = d.Id
+	p.UUID = d.UUID
+	p.Datetime = d.Datetime
+	p.Likes = d.Likes
+	p.PhotoUrl = d.PhotoUrl
+	p.UserId = d.UserId
+
+}
+
+func (c *CommentRequest) ToDatabase() database.Comment {
+
+	return database.Comment{
+		Comment: c.Text,
+	}
+}
+
 type Profile struct {
 	User      *User   `json:"user"`
 	Photos    []Photo `json:"photos"`
@@ -37,15 +67,16 @@ type Profile struct {
 }
 
 type Photo struct {
-	Id       int               `json:"user"`
-	Datetime time.Time         `json:"datetime"`
-	Likes    int               `json:"like"`
-	Comments []CommentResponse `json:"comments"`
-	PhotoUrl string            `json:"photourl"`
+	Id       uint64    `json:"id"`
+	UUID     string    `json:"uuid"`
+	Datetime time.Time `json:"datetime"`
+	UserId   uint64    `json:"userid"`
+	Likes    uint64    `json:"likes"`
+	PhotoUrl string    `json:"photourl"`
 }
 
 type CommentResponse struct {
-	Id       int       `json:"id"`
+	Id       uint64    `json:"id"`
 	From     *User     `json:"from"`
 	Comment  string    `json:"comment"`
 	Datetime time.Time `json:"datetime"`
@@ -62,9 +93,4 @@ type Stream struct {
 type ApiResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-}
-
-func parseDate(t time.Time) time.Time {
-	s, _ := time.Parse(time.RFC3339, time.RFC3339)
-	return s
 }
