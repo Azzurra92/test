@@ -44,7 +44,7 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '409': {$ref: '#/components/responses/Conflit'}
 
-  /user/{userId}/username:
+  /users/{userId}/username:
     put:
       security:
         - bearerAuth: []
@@ -73,7 +73,7 @@ paths:
 
 
 
-  /user/{userId}/following/{followingId}:
+  /users/{userId}/following/{followingId}:
     parameters:
       - $ref: '#/components/parameters/UserParam'
       - $ref: '#/components/parameters/FollowParam'
@@ -103,7 +103,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
 
-  /user/{userId}/ban/{userBanId}:
+  /users/{userId}/bans/{userBanId}:
     parameters:
       - $ref: '#/components/parameters/UserParam'
       - $ref: '#/components/parameters/BanParam'
@@ -179,7 +179,7 @@ paths:
                    $ref: '#/components/schemas/Stream'
         '401': {$ref: '#/components/responses/Unauthorized'}
 
-  /user/{userId}/photo:
+  /users/{userId}/photos:
     post:
       security:
         - bearerAuth: []
@@ -210,7 +210,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /user/{userId}/photo/{photoId}:
+  /users/{userId}/photos/{photoId}:
     delete:
       security:
         - bearerAuth: []
@@ -227,7 +227,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /user/{userId}/photo/{photoId}/like:
+  /users/{userId}/photos/{photoId}/likes:
     parameters:
        - $ref: '#/components/parameters/PhotoParam'
        - $ref: '#/components/parameters/UserParam'
@@ -257,7 +257,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
 
 
-  /user/{userId}/photos/{photoId}/comments:
+  /users/{userId}/photos/{photoId}/comments:
     post:
       security:
         - bearerAuth: []
@@ -285,7 +285,7 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
 
 
-  /user/{userId}/photos/{photoId}/comments/{commentId}:
+  /users/{userId}/photos/{photoId}/comments/{commentId}:
     delete:
       security:
         - bearerAuth: []
